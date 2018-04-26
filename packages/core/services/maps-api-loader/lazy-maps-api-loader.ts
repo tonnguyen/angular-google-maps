@@ -99,12 +99,15 @@ export class LazyMapsAPILoader extends MapsAPILoader {
         return Promise.resolve();
     }
 
-    if (window.__scriptLoadingPromise) {
-        return window.__scriptLoadingPromise;
+    if (window._scriptLoadingPromise) {
+      return window._scriptLoadingPromise;
     }
 
-    const callbackName: string = `agmLazyMapsAPILoader`;
-    const script = this._documentRef.getNativeDocument().createElement('script');
+    if (this._documentRef.getNativeDocument().getElementById(this._SCRIPT_ID)) {
+      // this can happen in HMR situations or Stackblitz.io editors.
+      return Promise.resolve();
+    }
+                  
     window.__scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
         (<any>this._windowRef.getNativeWindow())[callbackName] = () => {
             resolve();
@@ -115,14 +118,16 @@ export class LazyMapsAPILoader extends MapsAPILoader {
         };
     });
 
+    const script = this._documentRef.getNativeDocument().createElement('script');
     script.type = 'text/javascript';
     script.async = true;
     script.defer = true;
     script.id = this._SCRIPT_ID;
+    const callbackName: string = `agmLazyMapsAPILoader`;
     script.src = this._getScriptSrc(callbackName);
 
     this._documentRef.getNativeDocument().body.appendChild(script);
-    return window.__scriptLoadingPromise;
+    return window._scriptLoadingPromise;
 }
 
   protected _getScriptSrc(callbackName: string): string {
