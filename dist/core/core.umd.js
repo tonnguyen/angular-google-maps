@@ -2720,6 +2720,13 @@ var LazyMapsAPILoader = (function (_super) {
             // this can happen in HMR situations or Stackblitz.io editors.
             return Promise.resolve();
         }
+        var script = this._documentRef.getNativeDocument().createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.defer = true;
+        script.id = this._SCRIPT_ID;
+        var callbackName = "agmLazyMapsAPILoader";
+        script.src = this._getScriptSrc(callbackName);
         window._scriptLoadingPromise = new Promise(function (resolve, reject) {
             _this._windowRef.getNativeWindow()[callbackName] = function () {
                 resolve();
@@ -2728,13 +2735,6 @@ var LazyMapsAPILoader = (function (_super) {
                 reject(error);
             };
         });
-        var script = this._documentRef.getNativeDocument().createElement('script');
-        script.type = 'text/javascript';
-        script.async = true;
-        script.defer = true;
-        script.id = this._SCRIPT_ID;
-        var callbackName = "agmLazyMapsAPILoader";
-        script.src = this._getScriptSrc(callbackName);
         this._documentRef.getNativeDocument().body.appendChild(script);
         return window._scriptLoadingPromise;
     };

@@ -108,16 +108,6 @@ export class LazyMapsAPILoader extends MapsAPILoader {
       return Promise.resolve();
     }
 
-    window._scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
-        (<any>this._windowRef.getNativeWindow())[callbackName] = () => {
-            resolve();
-        };
-
-        script.onerror = (error: Event) => {
-            reject(error);
-        };
-    });
-
     const script = this._documentRef.getNativeDocument().createElement('script');
     script.type = 'text/javascript';
     script.async = true;
@@ -125,6 +115,16 @@ export class LazyMapsAPILoader extends MapsAPILoader {
     script.id = this._SCRIPT_ID;
     const callbackName: string = `agmLazyMapsAPILoader`;
     script.src = this._getScriptSrc(callbackName);
+
+    window._scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
+      (<any>this._windowRef.getNativeWindow())[callbackName] = () => {
+          resolve();
+      };
+
+      script.onerror = (error: Event) => {
+          reject(error);
+      };
+  });
 
     this._documentRef.getNativeDocument().body.appendChild(script);
     return window._scriptLoadingPromise;
