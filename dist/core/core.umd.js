@@ -117,6 +117,9 @@ var GoogleMapsAPIWrapper = (function () {
     GoogleMapsAPIWrapper.prototype.getCenter = function () {
         return this._map.then(function (map) { return map.getCenter(); });
     };
+    GoogleMapsAPIWrapper.prototype.getControls = function () {
+        return this._map.then(function (map) { return map.controls; });
+    };
     GoogleMapsAPIWrapper.prototype.panTo = function (latLng) {
         return this._map.then(function (map) { return map.panTo(latLng); });
     };
@@ -2534,6 +2537,129 @@ AgmPolyline.propDecorators = {
     'points': [{ type: _angular_core.ContentChildren, args: [AgmPolylinePoint,] },],
 };
 
+/**
+ * AgmSearchBox allows to add a search box to the map
+ *
+ * ### Example
+ *
+ * ```
+ * <agm-search-box [placeholder]="'Search'" [position]="ControlPosition.TOP_LEFT"
+ *   (placesChange)="updateRef($event)"></agm-search-box>
+ * ```
+ *
+ */
+var AgmSearchBox = (function () {
+    function AgmSearchBox(gmapsApi, _zone) {
+        this.gmapsApi = gmapsApi;
+        this._zone = _zone;
+        /**
+         * Will automatically center the map to the clicked result
+         */
+        this.autoBoundResults = true;
+        /**
+         * This event is fired when the user selects a query, will return the places matching that query.
+         */
+        this.placesChange = new _angular_core.EventEmitter();
+    }
+    /** @internal */
+    AgmSearchBox.prototype.ngOnInit = function () {
+        var _this = this;
+        this.gmapsApi.getNativeMap().then(function (map) {
+            _this.createEventObservable().subscribe(function () {
+                _this.placesChange.emit(_this.getSearchBoxEl().getPlaces());
+                if (_this.autoBoundResults) {
+                    _this.autoBound();
+                }
+            });
+        });
+    };
+    /** @internal */
+    AgmSearchBox.prototype.createEventObservable = function () {
+        var _this = this;
+        return rxjs_Observable.Observable.create(function (observer) {
+            _this.getSearchBoxEl().addListener('places_changed', function (e) {
+                _this._zone.run(function () { return observer.next(e); });
+            });
+        });
+    };
+    /** @internal */
+    AgmSearchBox.prototype.ngOnChanges = function (changes) {
+        var _this = this;
+        this.gmapsApi.getNativeMap().then(function (map) {
+            if (changes['bounds']) {
+                _this.getSearchBoxEl().setBounds(_this.bounds);
+            }
+            if (changes['position']) {
+                _this.updatePosition(_this.position);
+            }
+        });
+    };
+    /** @internal */
+    AgmSearchBox.prototype.getSearchBoxEl = function () {
+        if (this.searchBox === undefined) {
+            this.searchBox = new google.maps.places.SearchBox(this.panel.nativeElement, {
+                bounds: this.bounds
+            });
+        }
+        return this.searchBox;
+    };
+    /** @internal */
+    AgmSearchBox.prototype.updatePosition = function (position) {
+        var _this = this;
+        if (position) {
+            this.gmapsApi.getControls().then(function (controls) {
+                controls[position].push(_this.panel.nativeElement);
+            });
+        }
+    };
+    /** @internal */
+    AgmSearchBox.prototype.autoBound = function () {
+        var places = this.getSearchBoxEl().getPlaces();
+        if (places.length === 0) {
+            return;
+        }
+        // For each place, get the icon, name and location.
+        var bounds = new google.maps.LatLngBounds();
+        places.forEach(function (place) {
+            if (!place.geometry) {
+                console.log('Place does not contain a geometry');
+                return;
+            }
+            if (place.geometry.viewport) {
+                // Only geocodes have viewport.
+                bounds.union(place.geometry.viewport);
+            }
+            else {
+                bounds.extend(place.geometry.location);
+            }
+        });
+        this.gmapsApi.fitBounds(bounds);
+    };
+    return AgmSearchBox;
+}());
+AgmSearchBox.decorators = [
+    { type: _angular_core.Component, args: [{
+                selector: 'agm-search-box',
+                template: '<input type="text" class="search-box" #panel placeholder="{{placeholder}}">',
+                styles: [
+                    ".search-box {\n        background-color: #fff;\n        font-family: Roboto;\n        font-size: 15px;\n        font-weight: 300;\n        margin-left: 12px;\n        padding: 0 11px 0 13px;\n        text-overflow: ellipsis;\n        width: 300px;\n        margin-top: 10px;\n        height: 26px;\n      }\n\n      .search-box:focus {\n        border-color: #4d90fe;\n      }"
+                ]
+            },] },
+];
+/** @nocollapse */
+AgmSearchBox.ctorParameters = function () { return [
+    { type: GoogleMapsAPIWrapper, },
+    { type: _angular_core.NgZone, },
+]; };
+AgmSearchBox.propDecorators = {
+    'panel': [{ type: _angular_core.ViewChild, args: ['panel',] },],
+    'placeholder': [{ type: _angular_core.Input },],
+    'position': [{ type: _angular_core.Input },],
+    'autoBoundResults': [{ type: _angular_core.Input },],
+    'bounds': [{ type: _angular_core.Input },],
+    'placesChange': [{ type: _angular_core.Output },],
+};
+
 var WindowRef = (function () {
     function WindowRef() {
     }
@@ -2587,12 +2713,14 @@ var LazyMapsAPILoader = (function (_super) {
             // Google maps already loaded on the page.
             return Promise.resolve();
         }
-        if (window.__scriptLoadingPromise) {
-            return window.__scriptLoadingPromise;
+        if (window._scriptLoadingPromise) {
+            return window._scriptLoadingPromise;
         }
-        var callbackName = "agmLazyMapsAPILoader";
-        var script = this._documentRef.getNativeDocument().createElement('script');
-        window.__scriptLoadingPromise = new Promise(function (resolve, reject) {
+        if (this._documentRef.getNativeDocument().getElementById(this._SCRIPT_ID)) {
+            // this can happen in HMR situations or Stackblitz.io editors.
+            return Promise.resolve();
+        }
+        window._scriptLoadingPromise = new Promise(function (resolve, reject) {
             _this._windowRef.getNativeWindow()[callbackName] = function () {
                 resolve();
             };
@@ -2600,13 +2728,15 @@ var LazyMapsAPILoader = (function (_super) {
                 reject(error);
             };
         });
+        var script = this._documentRef.getNativeDocument().createElement('script');
         script.type = 'text/javascript';
         script.async = true;
         script.defer = true;
         script.id = this._SCRIPT_ID;
+        var callbackName = "agmLazyMapsAPILoader";
         script.src = this._getScriptSrc(callbackName);
         this._documentRef.getNativeDocument().body.appendChild(script);
-        return window.__scriptLoadingPromise;
+        return window._scriptLoadingPromise;
     };
     LazyMapsAPILoader.prototype._getScriptSrc = function (callbackName) {
         var protocolType = (this._config && this._config.protocol) || exports.GoogleMapsScriptProtocol.HTTPS;
@@ -2690,7 +2820,7 @@ function coreDirectives() {
     return [
         AgmMap, AgmMarker, AgmInfoWindow, AgmCircle,
         AgmPolygon, AgmPolyline, AgmPolylinePoint, AgmKmlLayer,
-        AgmDataLayer
+        AgmDataLayer, AgmSearchBox
     ];
 }
 /**
@@ -2732,6 +2862,7 @@ exports.AgmMarker = AgmMarker;
 exports.AgmPolygon = AgmPolygon;
 exports.AgmPolyline = AgmPolyline;
 exports.AgmPolylinePoint = AgmPolylinePoint;
+exports.AgmSearchBox = AgmSearchBox;
 exports.GoogleMapsAPIWrapper = GoogleMapsAPIWrapper;
 exports.CircleManager = CircleManager;
 exports.InfoWindowManager = InfoWindowManager;

@@ -8,11 +8,12 @@ import { AgmPolyline } from './directives/polyline';
 import { AgmPolylinePoint } from './directives/polyline-point';
 import { AgmKmlLayer } from './directives/kml-layer';
 import { AgmDataLayer } from './directives/data-layer';
+import { AgmSearchBox } from './directives/search-box';
 import { LazyMapsAPILoaderConfigLiteral } from './services/maps-api-loader/lazy-maps-api-loader';
 /**
  * @internal
  */
-export declare function coreDirectives(): (typeof AgmCircle | typeof AgmMarker | typeof AgmInfoWindow | typeof AgmPolygon | typeof AgmPolylinePoint | typeof AgmPolyline | typeof AgmKmlLayer | typeof AgmDataLayer | typeof AgmMap)[];
+export declare function coreDirectives(): (typeof AgmCircle | typeof AgmMarker | typeof AgmInfoWindow | typeof AgmPolygon | typeof AgmPolylinePoint | typeof AgmPolyline | typeof AgmKmlLayer | typeof AgmDataLayer | typeof AgmMap | typeof AgmSearchBox)[];
 /**
  * The angular-google-maps core module. Contains all Directives/Services/Pipes
  * of the core module. Please use `AgmCoreModule.forRoot()` in your app module.

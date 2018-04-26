@@ -40,12 +40,14 @@ var LazyMapsAPILoader = (function (_super) {
             // Google maps already loaded on the page.
             return Promise.resolve();
         }
-        if (window.__scriptLoadingPromise) {
-            return window.__scriptLoadingPromise;
+        if (window._scriptLoadingPromise) {
+            return window._scriptLoadingPromise;
         }
-        var callbackName = "agmLazyMapsAPILoader";
-        var script = this._documentRef.getNativeDocument().createElement('script');
-        window.__scriptLoadingPromise = new Promise(function (resolve, reject) {
+        if (this._documentRef.getNativeDocument().getElementById(this._SCRIPT_ID)) {
+            // this can happen in HMR situations or Stackblitz.io editors.
+            return Promise.resolve();
+        }
+        window._scriptLoadingPromise = new Promise(function (resolve, reject) {
             _this._windowRef.getNativeWindow()[callbackName] = function () {
                 resolve();
             };
@@ -53,13 +55,15 @@ var LazyMapsAPILoader = (function (_super) {
                 reject(error);
             };
         });
+        var script = this._documentRef.getNativeDocument().createElement('script');
         script.type = 'text/javascript';
         script.async = true;
         script.defer = true;
         script.id = this._SCRIPT_ID;
+        var callbackName = "agmLazyMapsAPILoader";
         script.src = this._getScriptSrc(callbackName);
         this._documentRef.getNativeDocument().body.appendChild(script);
-        return window.__scriptLoadingPromise;
+        return window._scriptLoadingPromise;
     };
     LazyMapsAPILoader.prototype._getScriptSrc = function (callbackName) {
         var protocolType = (this._config && this._config.protocol) || GoogleMapsScriptProtocol.HTTPS;

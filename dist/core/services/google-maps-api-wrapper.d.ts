@@ -42,6 +42,7 @@ export declare class GoogleMapsAPIWrapper {
     getMapTypeId(): Promise<mapTypes.MapTypeId>;
     setZoom(zoom: number): Promise<void>;
     getCenter(): Promise<mapTypes.LatLng>;
+    getControls(): Promise<mapTypes.MVCArray<Node>[]>;
     panTo(latLng: mapTypes.LatLng | mapTypes.LatLngLiteral): Promise<void>;
     panBy(x: number, y: number): Promise<void>;
     fitBounds(latLng: mapTypes.LatLngBounds | mapTypes.LatLngBoundsLiteral): Promise<void>;

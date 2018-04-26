@@ -51,6 +51,14 @@ describe('Service: LazyMapsAPILoader', function () {
         loader.load();
         expect(doc.body.appendChild).not.toHaveBeenCalledWith();
     }));
+    it('should not append a second script to body when the script loading request is processing', inject([MapsAPILoader, WindowRef, DocumentRef], function (loader, windowRed, documentRef) {
+        doc.getElementById.and.returnValue(null);
+        doc.createElement.and.returnValue({});
+        loader.load();
+        var secondLoader = new LazyMapsAPILoader(null, windowRef, documentRef);
+        secondLoader.load();
+        expect(doc.body.appendChild).toHaveBeenCalledTimes(1);
+    }));
     it('should load the script via http when provided', function () {
         var lazyLoadingConf = { protocol: GoogleMapsScriptProtocol.HTTP };
         TestBed.configureTestingModule({

@@ -107,8 +107,8 @@ export class LazyMapsAPILoader extends MapsAPILoader {
       // this can happen in HMR situations or Stackblitz.io editors.
       return Promise.resolve();
     }
-                  
-    window.__scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
+
+    window._scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
         (<any>this._windowRef.getNativeWindow())[callbackName] = () => {
             resolve();
         };

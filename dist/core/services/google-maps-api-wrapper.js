@@ -103,6 +103,9 @@ var GoogleMapsAPIWrapper = (function () {
     GoogleMapsAPIWrapper.prototype.getCenter = function () {
         return this._map.then(function (map) { return map.getCenter(); });
     };
+    GoogleMapsAPIWrapper.prototype.getControls = function () {
+        return this._map.then(function (map) { return map.controls; });
+    };
     GoogleMapsAPIWrapper.prototype.panTo = function (latLng) {
         return this._map.then(function (map) { return map.panTo(latLng); });
     };
