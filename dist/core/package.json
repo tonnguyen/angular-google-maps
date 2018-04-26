@@ -1,14 +1,11 @@
 {
-  "name": "@tonnguyen-agm/core",
+  "name": "tonnguyen-agm-core",
   "version": "1.0.1",
   "description": "Angular 2+ components for Google Maps",
   "repository": {
     "type": "git",
     "url": "https://github.com/tonnguyen/angular-google-maps"
   },
-  "main": "./dist/core/core.umd.js",
-  "module": "./dist/core/core.module.js",
-  "typings": "./dist/core/core.module.d.ts",
   "keywords": [
     "angular",
     "ng",
@@ -19,7 +16,7 @@
     "ng2",
     "angular2"
   ],
-  "author": "Sebastian Holstein <info@sebastian-holstein.de>",
+  "author": "Ton Nguyen <tonng86@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tonnguyen/angular-google-maps/issues"
