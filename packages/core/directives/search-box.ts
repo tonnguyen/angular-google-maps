@@ -18,9 +18,9 @@ import {
   LatLngBoundsLiteral,
   MVCArray
 } from '../services/google-maps-types';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {PlaceResult} from '@agm/core/services/google-maps-types';
-import {Observer} from 'rxjs/Observer';
+import { Observer } from 'rxjs/internal/types';
 
 declare var google: any;
 

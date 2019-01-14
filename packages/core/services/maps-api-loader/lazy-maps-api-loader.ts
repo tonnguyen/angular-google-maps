@@ -80,6 +80,7 @@ export interface LazyMapsAPILoaderConfigLiteral {
 
 @Injectable()
 export class LazyMapsAPILoader extends MapsAPILoader {
+  protected _scriptLoadingPromise: Promise<void>;
   protected _config: LazyMapsAPILoaderConfigLiteral;
   protected _windowRef: WindowRef;
   protected _documentRef: DocumentRef;
@@ -96,12 +97,8 @@ export class LazyMapsAPILoader extends MapsAPILoader {
   load(): Promise<void> {
     const window = <any>this._windowRef.getNativeWindow();
     if (window.google && window.google.maps) {
-        // Google maps already loaded on the page.
-        return Promise.resolve();
-    }
-
-    if (window._scriptLoadingPromise) {
-      return window._scriptLoadingPromise;
+      // Google maps already loaded on the page.
+      return Promise.resolve();
     }
 
     if (this._scriptLoadingPromise) {
