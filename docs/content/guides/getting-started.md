@@ -18,7 +18,7 @@ If you just want to play with AGM and don't want to set up a full project with N
 
 There's also a really great video tutorial that follows exactly this guide. So if you prefer videos, we recommend watching this tutorial:
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/lApggVS0icc?rel=0" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
+[![Google Maps & Angular | ANGULAR SNIPPETS](http://img.youtube.com/vi/lApggVS0icc/0.jpg)](http://www.youtube.com/watch?v=lApggVS0icc "")
 
 ## Setting up a basic project structure
 
@@ -152,6 +152,6 @@ The command starts the following things:
 
 When you have problems setting up **Angular Google Maps (AGM)** or questions in general, the best way is to join the chat where you find nice people from the community that can answer you questions:
 
-<a href="https://gitter.im/SebastianM/angular2-google-maps" target="_blank" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-  Chat on Gitter
+<a href="https://discord.gg/XAr2ACE" target="_blank" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+  Chat on Discord
 </a>
